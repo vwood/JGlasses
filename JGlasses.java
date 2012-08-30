@@ -1,9 +1,8 @@
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Collections;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
@@ -18,8 +17,6 @@ public class JGlasses {
     }
     
     public static void main(String[] args) throws IOException {
-        List<Class<?>> classes = new ArrayList<Class<?>>();
-
         URL[] urls = new URL[args.length];
         for (int i = 0; i < args.length; i++) {
             urls[i] = new File(args[i]).toURI().toURL();
@@ -37,10 +34,12 @@ public class JGlasses {
                     String classname = file.replace('/', '.').substring(0, file.length() - 6);
                     try {
                         Class<?> c = loader.findClass(classname);
-                        classes.add(c);
-                        System.out.println(classname);                        
+                        System.out.println(classname);
+                        for (Method m : c.getDeclaredMethods()) {
+                            System.out.println(m.toString());
+                        }
                     } catch (Throwable e) {
-                        System.out.println("FAILED " + classname + " from " + file);
+                        System.out.println(classname + " not found in " + file);
                     }
                 }
             }
