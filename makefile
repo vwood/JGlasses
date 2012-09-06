@@ -7,11 +7,15 @@ JC = javac
 .java.class:
 	$(JC) $(JFLAGS) $*.java
 
-CLASSES = src/JGlasses.java
+SOURCES = src/JGlasses.java
+CLASSES = $(SOURCES:.java=.class)
 
-default: classes
+default: jar
 
-classes: $(CLASSES:.java=.class)
+classes: $(CLASSES)
+
+jar: classes
+	cd bin; jar cvfe JGlasses.jar JGlasses *.class
 
 run:
 	$(JRE) -cp 'bin/' JGlasses
