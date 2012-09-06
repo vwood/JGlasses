@@ -32,9 +32,11 @@ public class JGlasses {
     }
 
     public static void main(String[] args) throws IOException {
-        if (args.length < 3) {
-            System.err.println("Usage: java JGlasses <class regex> <method regex> <jar filename> ...");
-            System.err.println("Note: on windows regexen will need to be double quoted: \"'.*'\" for .*, to avoid their damn wildcard expansion that can't be avoided. Microsoft and Oracle hate us.");
+        if (args.length < 2) {
+            System.err.println("Usage: java JGlasses <class regex> <method regex> [<jar filename> ...]");
+            System.err.println("Note: on windows regexen will need to be double quoted: \"'.*'\" for .*,");
+            System.err.println(" to avoid their damn wildcard expansion that can't be avoided.");
+            System.err.println(" Microsoft and Oracle hate us.");
             return;
         }
 
