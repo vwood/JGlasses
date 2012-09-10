@@ -32,6 +32,8 @@ public class JGlasses {
         return in;
     }
 
+    static FixedURLClassLoader loader;
+
     static Pattern class_regex;
     static Pattern method_regex;
 
@@ -65,14 +67,14 @@ public class JGlasses {
         String[] classpaths = Arrays.copyOfRange(args, 2, args.length); 
 
         URL[] urls = new URL[args.length];
-        for (int i = 0; i < jar_names.length; i++) {
+        for (int i = 0; i < classpaths.length; i++) {
             urls[i] = new File(classpaths[i]).toURI().toURL();
         }
-        FixedURLClassLoader loader = new FixedURLClassLoader(urls);
+        loader = new FixedURLClassLoader(urls);
         
         for (String path : classpaths) {
             if (path.endsWith(".jar")) {
-                JarFile jar = new JarFile(jar_name);
+                JarFile jar = new JarFile(path);
                 for (JarEntry entry : Collections.list(jar.entries())) {
                     String file = entry.getName();
                     if (file.endsWith(".class")) {
