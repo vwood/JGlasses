@@ -82,6 +82,14 @@ public class JGlasses {
                         print_methods(classname); 
                     }
                 }
+            } else {
+                File dir = new File(path);
+                for (String file : dir.list()) {
+                    if (file.endsWith(".class")) {
+                        String classname = file.replace('/', '.').substring(0, file.length() - 6);
+                        print_methods(classname); 
+                    }
+                }
             }
         }
     }
