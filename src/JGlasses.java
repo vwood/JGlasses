@@ -17,6 +17,7 @@ public class JGlasses {
         public FixedURLClassLoader(URL[] urls) { super(urls); }
         public Class<?> findClass(String name) throws ClassNotFoundException { return super.findClass(name); }
     }
+
     /*
         Remove extra quotes if in windows, and they are present.
     */ 
@@ -31,6 +32,25 @@ public class JGlasses {
         return in;
     }
 
+    static Pattern class_regex;
+    static Pattern method_regex;
+
+    public static void print_methods(String classname) {
+        if (class_regex.matcher(classname).find()) { 
+            try {
+                Class<?> c = loader.findClass(classname);
+                for (Method m : c.getDeclaredMethods()) {
+                    String method_string = m.toString();
+                    if (method_regex.matcher(method_string).find()) { 
+                        System.out.println(method_string);
+                    }
+                }
+            } catch (Throwable e) {
+                System.err.println(classname + " not found.");
+            }
+        }
+    }
+
     public static void main(String[] args) throws IOException {
         if (args.length < 2) {
             System.err.println("Usage: java JGlasses <class regex> <method regex> [<jar filename> ...]");
@@ -40,36 +60,24 @@ public class JGlasses {
             return;
         }
 
-        Pattern class_regex = Pattern.compile(fix_wildcard(args[0]));
-        Pattern method_regex = Pattern.compile(fix_wildcard(args[1]));
-        String[] jar_names = Arrays.copyOfRange(args, 2, args.length); 
+        class_regex = Pattern.compile(fix_wildcard(args[0]));
+        method_regex = Pattern.compile(fix_wildcard(args[1]));
+        String[] classpaths = Arrays.copyOfRange(args, 2, args.length); 
 
         URL[] urls = new URL[args.length];
         for (int i = 0; i < jar_names.length; i++) {
-            urls[i] = new File(jar_names[i]).toURI().toURL();
+            urls[i] = new File(classpaths[i]).toURI().toURL();
         }
         FixedURLClassLoader loader = new FixedURLClassLoader(urls);
         
-        for (String jar_name : jar_names) {
-            JarFile jar = new JarFile(jar_name);
-            for (JarEntry entry : Collections.list(jar.entries())) {
-                String file = entry.getName();
-
-                if (file.endsWith(".class")) {
-                    String classname = file.replace('/', '.').substring(0, file.length() - 6);
-
-                    if (class_regex.matcher(classname).find()) { 
-                        try {
-                            Class<?> c = loader.findClass(classname);
-                            for (Method m : c.getDeclaredMethods()) {
-                                String method_string = m.toString();
-                                if (method_regex.matcher(method_string).find()) { 
-                                    System.out.println(method_string);
-                                }
-                            }
-                        } catch (Throwable e) {
-                            System.err.println(classname + " not found.");
-                        }
+        for (String path : classpaths) {
+            if (path.endsWith(".jar")) {
+                JarFile jar = new JarFile(jar_name);
+                for (JarEntry entry : Collections.list(jar.entries())) {
+                    String file = entry.getName();
+                    if (file.endsWith(".class")) {
+                        String classname = file.replace('/', '.').substring(0, file.length() - 6);
+                        print_methods(classname); 
                     }
                 }
             }
