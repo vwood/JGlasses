@@ -34,8 +34,8 @@ public class JGlasses {
 
     static FixedURLClassLoader loader;
 
-    static Pattern class_regex;
-    static Pattern method_regex;
+    static Pattern class_regex = Pattern.compile("");
+    static Pattern method_regex = Pattern.compile("");
 
     public static void print_methods(String classname) {
         if (class_regex.matcher(classname).find()) { 
@@ -54,17 +54,21 @@ public class JGlasses {
     }
 
     public static void main(String[] args) throws IOException {
-        if (args.length != 3) {
-            System.err.println("Usage: java JGlasses <class regex> <method regex> <classpath>");
+        if (args.length < 1 || args.length > 3) {
+            System.err.println("Usage: java JGlasses <classpath> [class regex] [method regex]");
             System.err.println("Note: on windows regexen will need to be double quoted: \"'.*'\" for .*,");
             System.err.println(" to avoid their damn wildcard expansion that can't be avoided.");
             System.err.println(" Microsoft and Oracle hate us.");
             return;
         }
 
-        class_regex = Pattern.compile(fix_wildcard(args[0]));
-        method_regex = Pattern.compile(fix_wildcard(args[1]));
-        String[] classpaths = args[2].split(';');
+        String[] classpaths = args[0].split(";");
+        if (args.length > 1) {
+            class_regex = Pattern.compile(fix_wildcard(args[1]));
+        }
+        if (args.length > 2) {
+            method_regex = Pattern.compile(fix_wildcard(args[2]));
+        }
 
         URL[] urls = new URL[args.length];
         for (int i = 0; i < classpaths.length; i++) {
