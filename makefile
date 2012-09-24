@@ -7,7 +7,7 @@ JC = javac
 .java.class:
 	$(JC) $(JFLAGS) $*.java
 
-SOURCES = src/JGlasses.java
+SOURCES = $(shell find . -type f)
 CLASSES = $(SOURCES:.java=.class)
 
 default: jar
@@ -15,10 +15,10 @@ default: jar
 classes: $(CLASSES)
 
 jar: classes
-	cd bin; jar cvfe JGlasses.jar JGlasses *.class
+	cd bin; jar cvfe JGlasses.jar src.JGlasses `find . -iname *.class`
 
 run:
-	$(JRE) -cp 'bin/' JGlasses
+	$(JRE) -jar 'bin/JGlasses.jar'
 
 clean: 
-	$(RM) bin/*.class
+	$(RM) $(shell find bin/ -iname *.class)

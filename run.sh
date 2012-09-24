@@ -1,3 +1,3 @@
 #!/bin/sh
 
-java -cp 'bin/' JGlasses $@
+java -jar bin/JGlasses.jar $@
