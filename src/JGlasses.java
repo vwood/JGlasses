@@ -4,9 +4,11 @@ import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
+import java.util.List;
 import java.util.regex.Pattern;
 
 public class JGlasses {
@@ -39,8 +41,16 @@ public class JGlasses {
 
     public static void print_methods(String classname) {
         if (class_regex.matcher(classname).find()) { 
+            Class<?> c;
             try {
-                Class<?> c = loader.findClass(classname);
+                c = loader.findClass(classname);
+                System.err.println(classname);
+            } catch (Throwable e) {
+                System.err.println(classname + " not found.");
+                return;
+            }
+
+            try {
                 for (Method m : c.getDeclaredMethods()) {
                     String method_string = m.toString();
                     if (method_regex.matcher(method_string).find()) { 
@@ -48,9 +58,45 @@ public class JGlasses {
                     }
                 }
             } catch (Throwable e) {
-                System.err.println(classname + " not found.");
+                System.err.println("  methods not found.");
             }
         }
+    }
+
+    public static List<String> getAllChildClasses(String parent_path) {
+        File parent = new File(parent_path);
+
+        List<String> result = new ArrayList<String>();
+        List<String> queue = new ArrayList<String>();
+        queue.add("");
+
+        if (parent == null) { return result; }
+
+        while (!queue.isEmpty()) {
+            String pathname = queue.get(0);
+            queue.remove(0);
+            File path = new File(parent, pathname);
+
+            if (path == null) { continue; }
+
+            if (path.isDirectory()) {
+                String[] children = path.list();
+                if (children == null) { continue; }
+                for (String child : path.list()) {
+                    if (pathname.equals("")) {
+                        queue.add(child);
+                    } else {
+                        queue.add(pathname + File.separator + child);
+                    }
+                }
+            } else {
+                if (pathname.endsWith(".class")) {
+                    result.add(pathname);
+                }
+            }
+        } 
+
+        return result;
     }
 
     public static void main(String[] args) throws IOException {
@@ -70,7 +116,7 @@ public class JGlasses {
             method_regex = Pattern.compile(fix_wildcard(args[2]));
         }
 
-        URL[] urls = new URL[args.length];
+        URL[] urls = new URL[classpaths.length];
         for (int i = 0; i < classpaths.length; i++) {
             urls[i] = new File(classpaths[i]).toURI().toURL();
         }
@@ -87,17 +133,9 @@ public class JGlasses {
                     }
                 }
             } else {
-                File dir = new File(path);
-                if (dir == null) {
-                    continue;
-                }
-                String[] dir_list = dir.list();
-                if (dir_list == null) {
-                    continue;
-                }
-                for (String file : dir.list()) {
+                for (String file : getAllChildClasses(path)) {
                     if (file.endsWith(".class")) {
-                        String classname = file.replace('/', '.').substring(0, file.length() - 6);
+                        String classname = file.replace('/', '.').replace('\\', '.').substring(0, file.length() - 6);
                         print_methods(classname); 
                     }
                 }
