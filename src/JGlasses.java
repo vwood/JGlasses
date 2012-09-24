@@ -3,6 +3,8 @@ package src;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.lang.StringBuilder;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.Arrays;
@@ -46,7 +48,7 @@ public class JGlasses {
             Class<?> c;
             try {
                 c = loader.findClass(classname);
-                System.err.println(classname);
+                System.out.println(Modifier.toString(c.getModifiers()) + " " + c.toString());
             } catch (Throwable e) {
                 System.err.println(classname + " not found.");
                 return;
