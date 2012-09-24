@@ -88,6 +88,13 @@ public class JGlasses {
                 }
             } else {
                 File dir = new File(path);
+                if (dir == null) {
+                    continue;
+                }
+                String[] dir_list = dir.list();
+                if (dir_list == null) {
+                    continue;
+                }
                 for (String file : dir.list()) {
                     if (file.endsWith(".class")) {
                         String classname = file.replace('/', '.').substring(0, file.length() - 6);
