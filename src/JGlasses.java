@@ -48,7 +48,12 @@ public class JGlasses {
             Class<?> c;
             try {
                 c = loader.findClass(classname);
-                System.out.println(Modifier.toString(c.getModifiers()) + " " + c.toString());
+                String modifiers = Modifier.toString(c.getModifiers()); 
+                if (modifiers.isEmpty()) {
+                    System.out.println(c.toString());
+                } else {
+                    System.out.println(Modifier.toString(c.getModifiers()) + " " + c.toString());
+                }
             } catch (Throwable e) {
                 System.err.println(classname + " not found.");
                 return;
@@ -58,11 +63,11 @@ public class JGlasses {
                 for (Method m : c.getDeclaredMethods()) {
                     String method_string = m.toString();
                     if (method_regex.matcher(method_string).find()) { 
-                        System.out.println(method_string);
+                        System.out.println("\t" + method_string);
                     }
                 }
             } catch (Throwable e) {
-                System.err.println("  methods not found.");
+                System.err.println("\tUnable to list methods.");
             }
         }
     }
